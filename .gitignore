@@ -1,5 +1,6 @@
 .venv/
 .env
+Project_docs_and_architecture/
 __pycache__/
 *.pyc
 *.pyo
