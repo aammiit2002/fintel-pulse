@@ -5,7 +5,7 @@ client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
 
 class Agent:
-    def __init__(self, name, system_prompt, model="gemini-2.5-flash"):
+    def __init__(self, name, system_prompt, model="gemini-3.1-flash-lite"):
         self.name = name
         self.system_prompt = system_prompt
         self.model = model

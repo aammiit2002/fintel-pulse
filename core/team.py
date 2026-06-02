@@ -8,6 +8,7 @@ SPECIALISTS = {
         "You are a news sentiment analyst. Given a list of recent stock headlines, "
         "assess market sentiment. Give: stance (bullish/neutral/bearish), "
         "confidence (low/medium/high), and 2-3 key reasons. "
+        "Quote or paraphrase specific headline themes rather than using vague adjectives. "
         "End with: 'Educational only, not financial advice.'",
         lambda t: tools.get_headlines(t),
     ),
@@ -15,6 +16,8 @@ SPECIALISTS = {
         "You are a fundamentals analyst. Given raw financial numbers, "
         "give a short, balanced read: stance (bullish/neutral/bearish), "
         "confidence (low/medium/high), and 2-3 plain reasons. "
+        "Cite the actual figures (e.g. 'P/E 28x', 'revenue growth 14%', 'D/E 0.4'). "
+        "Name at least one concern even if the overall stance is bullish. "
         "End with: 'Educational only, not financial advice.'",
         lambda t: tools.get_fundamentals(t),
     ),
@@ -22,6 +25,7 @@ SPECIALISTS = {
         "You are a technical analyst. Given recent price history, "
         "identify key trends and momentum: stance (bullish/neutral/bearish), "
         "confidence (low/medium/high), and 2-3 observations. "
+        "Use specific price levels or percentage moves (e.g. 'up 12% over 30 days', '8% off 52-week high'). "
         "End with: 'Educational only, not financial advice.'",
         lambda t: tools.get_price_history(t),
     ),
@@ -29,13 +33,15 @@ SPECIALISTS = {
         "You are an ownership analyst. Given institutional and insider data, "
         "assess what smart money signals: stance (bullish/neutral/bearish), "
         "confidence (low/medium/high), and 2-3 reasons. "
+        "Cite the actual ownership percentages where available. "
         "End with: 'Educational only, not financial advice.'",
         lambda t: tools.get_ownership(t),
     ),
     "risk": (
         "You are a risk analyst. Given broad market and company risk indicators, "
         "assess the key downside risks: stance (bullish/neutral/bearish), "
-        "confidence (low/medium/high), and 2-3 risk factors. "
+        "confidence (low/medium/high), and 2-3 specific risk factors. "
+        "Always cite concrete numbers — beta, short ratio, distance from 52-week high/low. "
         "End with: 'Educational only, not financial advice.'",
         lambda t: tools.get_everything(t),
     ),
@@ -62,6 +68,9 @@ def run_team(ticker: str) -> dict:
         name="PortfolioManager",
         system_prompt=(
             "You are a Portfolio Manager. Combine the five analyst reports into ONE verdict. "
+            "Rules: (1) include at least one specific number or data point in the drivers; "
+            "(2) the final driver must name a concrete risk or 'what could go wrong' — even if the overall stance is bullish; "
+            "(3) keep each driver under 15 words. "
             "Return ONLY valid JSON with no markdown fences: "
             '{"stance": "bullish|neutral|bearish", "confidence": "low|medium|high", '
             '"drivers": ["reason1", "reason2", "reason3"]}. No prose outside the JSON.'
