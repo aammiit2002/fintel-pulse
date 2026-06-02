@@ -1,0 +1,7 @@
+streamlit
+google-genai
+yfinance
+psycopg2-binary
+feedparser
+python-dotenv
+pandas

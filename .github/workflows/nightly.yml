@@ -1,0 +1,22 @@
+name: nightly-accuracy
+
+on:
+  schedule:
+    - cron: "30 18 * * 1-5"   # Mon–Fri 18:30 UTC (after US market close)
+  workflow_dispatch:            # run manually to test
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run nightly accuracy job
+        run: python -m jobs.nightly_accuracy
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
