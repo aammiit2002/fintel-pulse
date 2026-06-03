@@ -5,22 +5,32 @@ Builds two discovery lists stored in the discovery_list table:
   'most_viewed' — tickers with the most user queries
 """
 import json
+import math
+import pandas as pd
 import yfinance as yf
 from core.db import conn
 
-# Reference universe — extend this list for broader coverage
-UNIVERSE = [
-    "RELIANCE.NS", "INFY.NS", "TCS.NS", "HDFCBANK.NS", "ITC.NS",
-    "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA",
-]
+NIFTY50_CSV = "https://archives.nseindia.com/content/indices/ind_nifty50list.csv"
+
+
+def get_universe() -> list[str]:
+    try:
+        df = pd.read_csv(NIFTY50_CSV)
+        return [s + ".NS" for s in df["Symbol"].tolist()]
+    except Exception as e:
+        print(f"Failed to fetch Nifty 50 list: {e}")
+        return []
 
 
 def build_movers() -> list[dict]:
+    universe = get_universe()
+    if not universe:
+        return []
     try:
-        data = yf.download(UNIVERSE, period="2d", progress=False)["Close"]
+        data = yf.download(universe, period="2d", progress=False)["Close"]
         pct = ((data.iloc[-1] / data.iloc[-2]) - 1) * 100
         ranked = sorted(
-            [(str(t), round(float(p), 2)) for t, p in pct.items() if not __import__("math").isnan(p)],
+            [(str(t), round(float(p), 2)) for t, p in pct.items() if not math.isnan(p)],
             key=lambda kv: abs(kv[1]),
             reverse=True,
         )
