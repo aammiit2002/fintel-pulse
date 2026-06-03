@@ -30,15 +30,33 @@ with col2:
     try:
         movers = db.get_discovery("movers")
         if movers:
-            st.subheader("Biggest movers today")
-            for item in movers[:5]:
-                arrow = "▲" if item["pct"] > 0 else "▼"
-                st.write(f"{arrow} **{item['ticker']}** {item['pct']:+.2f}%")
+            gainers = [m for m in movers if m["pct"] > 0]
+            losers  = [m for m in movers if m["pct"] < 0]
+
+            st.subheader("Top Gainers")
+            if gainers:
+                for item in gainers[:5]:
+                    st.markdown(
+                        f"<span style='color:#00c853'>▲ **{item['ticker']}** &nbsp; {item['pct']:+.2f}%</span>",
+                        unsafe_allow_html=True,
+                    )
+            else:
+                st.caption("No gainers today.")
+
+            st.subheader("Top Losers")
+            if losers:
+                for item in losers[:5]:
+                    st.markdown(
+                        f"<span style='color:#ff1744'>▼ **{item['ticker']}** &nbsp; {item['pct']:+.2f}%</span>",
+                        unsafe_allow_html=True,
+                    )
+            else:
+                st.caption("No losers today.")
         else:
-            st.subheader("Biggest movers")
+            st.subheader("Movers")
             st.caption("Available after the daily job runs.")
     except Exception:
-        st.subheader("Biggest movers")
+        st.subheader("Movers")
         st.caption("Connect database to see movers.")
 
 with col3:
