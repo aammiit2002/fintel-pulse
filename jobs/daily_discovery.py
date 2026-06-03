@@ -34,7 +34,7 @@ def build_movers() -> list[dict]:
             key=lambda kv: abs(kv[1]),
             reverse=True,
         )
-        return [{"ticker": t, "pct": p} for t, p in ranked[:10]]
+        return [{"ticker": t, "pct": p} for t, p in ranked]
     except Exception as e:
         print(f"build_movers error: {e}")
         return []

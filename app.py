@@ -30,28 +30,43 @@ with col2:
     try:
         movers = db.get_discovery("movers")
         if movers:
-            gainers = [m for m in movers if m["pct"] > 0]
-            losers  = [m for m in movers if m["pct"] < 0]
+            sorted_asc  = sorted(movers, key=lambda x: x["pct"])
+            sorted_desc = sorted(movers, key=lambda x: x["pct"], reverse=True)
+
+            gainers = [m for m in sorted_desc if m["pct"] > 0][:5]
+            losers  = [m for m in sorted_asc  if m["pct"] < 0][:5]
+            best    = sorted_desc[:5]   # fallback: best performers even if all negative
+            worst   = sorted_asc[:5]    # fallback: worst performers even if all positive
 
             st.subheader("Top Gainers")
             if gainers:
-                for item in gainers[:5]:
+                for item in gainers:
                     st.markdown(
                         f"<span style='color:#00c853'>▲ **{item['ticker']}** &nbsp; {item['pct']:+.2f}%</span>",
                         unsafe_allow_html=True,
                     )
             else:
-                st.caption("No gainers today.")
+                st.caption("No gainers — best performers today:")
+                for item in best:
+                    st.markdown(
+                        f"<span style='color:#80cbc4'>▲ **{item['ticker']}** &nbsp; {item['pct']:+.2f}%</span>",
+                        unsafe_allow_html=True,
+                    )
 
             st.subheader("Top Losers")
             if losers:
-                for item in losers[:5]:
+                for item in losers:
                     st.markdown(
                         f"<span style='color:#ff1744'>▼ **{item['ticker']}** &nbsp; {item['pct']:+.2f}%</span>",
                         unsafe_allow_html=True,
                     )
             else:
-                st.caption("No losers today.")
+                st.caption("No losers — worst performers today:")
+                for item in worst:
+                    st.markdown(
+                        f"<span style='color:#ef9a9a'>▼ **{item['ticker']}** &nbsp; {item['pct']:+.2f}%</span>",
+                        unsafe_allow_html=True,
+                    )
         else:
             st.subheader("Movers")
             st.caption("Available after the daily job runs.")
