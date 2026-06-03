@@ -3,6 +3,7 @@ Nightly job — run after market close.
 1. Resolves actual outcomes for any prediction whose for_date has passed.
 2. Recomputes the rolling 30-day accuracy scorecard.
 """
+from datetime import timedelta
 import yfinance as yf
 from core.db import conn
 
@@ -10,7 +11,7 @@ from core.db import conn
 def pct_change_on(ticker: str, for_date) -> float | None:
     """Return the percentage price change on for_date, or None if unavailable."""
     try:
-        hist = yf.Ticker(ticker).history(start=str(for_date), end=str(for_date))
+        hist = yf.Ticker(ticker).history(start=str(for_date), end=str(for_date + timedelta(days=1)))
         if hist.empty or len(hist) < 1:
             return None
         open_p = hist["Open"].iloc[0]
