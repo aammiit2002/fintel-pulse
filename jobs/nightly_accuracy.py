@@ -52,6 +52,17 @@ def recompute_accuracy():
     with conn() as c, c.cursor() as cur:
         cur.execute(
             """
+            SELECT COUNT(*) FROM predictions
+            WHERE correct IS NOT NULL
+              AND for_date > current_date - INTERVAL '30 days'
+            """
+        )
+        total = cur.fetchone()[0]
+        if total == 0:
+            print("No scored predictions yet, skipping accuracy update.")
+            return
+        cur.execute(
+            """
             INSERT INTO accuracy (scope, period, hit_rate, total, updated_at)
             SELECT
                 'overall',
@@ -62,7 +73,6 @@ def recompute_accuracy():
             FROM predictions
             WHERE correct IS NOT NULL
               AND for_date > current_date - INTERVAL '30 days'
-            HAVING COUNT(*) > 0
             ON CONFLICT (scope, period) DO UPDATE
             SET hit_rate   = EXCLUDED.hit_rate,
                 total      = EXCLUDED.total,
