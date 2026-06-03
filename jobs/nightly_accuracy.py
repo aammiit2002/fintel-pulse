@@ -62,6 +62,7 @@ def recompute_accuracy():
             FROM predictions
             WHERE correct IS NOT NULL
               AND for_date > current_date - INTERVAL '30 days'
+            HAVING COUNT(*) > 0
             ON CONFLICT (scope, period) DO UPDATE
             SET hit_rate   = EXCLUDED.hit_rate,
                 total      = EXCLUDED.total,
