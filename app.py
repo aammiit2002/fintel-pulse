@@ -131,4 +131,12 @@ if st.button("Analyze", type="primary") and ticker_input.strip():
         for d in drivers:
             st.markdown(f"- {d}")
 
+    agent_reports = verdict.get("agent_reports", {})
+    if agent_reports:
+        st.subheader("Agent reasoning")
+        icons = {"news": "📰", "fundamentals": "📊", "technical": "📈", "ownership": "🏦", "risk": "⚠️"}
+        for name, report in agent_reports.items():
+            with st.expander(f"{icons.get(name, '🤖')} {name.title()} Analyst"):
+                st.markdown(report)
+
     st.info("Educational only — not financial advice. Next-day stock direction is close to a coin flip.")

@@ -72,11 +72,45 @@ def get_everything(ticker: str) -> dict:
         return {"error": str(e)}
 
 
-def get_headlines(query: str, limit: int = 8) -> list[str]:
-    """Fetch Google News RSS headlines. Agent judges sentiment."""
+def get_headlines(ticker: str, limit: int = 10) -> list[str]:
+    """Fetch headlines from yfinance AND Google News RSS in parallel, combine and deduplicate."""
+    from concurrent.futures import ThreadPoolExecutor
+
     try:
-        url = "https://news.google.com/rss/search?q=" + urllib.parse.quote(query)
-        feed = feedparser.parse(url)
-        return [e.title for e in feed.entries[:limit]]
-    except Exception as e:
-        return [f"Error fetching news: {e}"]
+        info = yf.Ticker(ticker).info
+        company_name = info.get("shortName") or info.get("longName") or ticker
+    except Exception:
+        company_name = ticker
+
+    def fetch_yfinance_news():
+        try:
+            articles = yf.Ticker(ticker).news or []
+            return [a.get("content", {}).get("title", "") or a.get("title", "") for a in articles if a]
+        except Exception:
+            return []
+
+    def fetch_google_rss():
+        try:
+            url = "https://news.google.com/rss/search?q=" + urllib.parse.quote(company_name + " stock")
+            feed = feedparser.parse(url)
+            return [e.title for e in feed.entries]
+        except Exception:
+            return []
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        f1 = pool.submit(fetch_yfinance_news)
+        f2 = pool.submit(fetch_google_rss)
+        yf_titles  = f1.result()
+        rss_titles = f2.result()
+
+    # Combine, deduplicate, return top N
+    seen = set()
+    combined = []
+    for title in yf_titles + rss_titles:
+        if title and title.lower() not in seen:
+            seen.add(title.lower())
+            combined.append(title)
+        if len(combined) >= limit:
+            break
+
+    return combined if combined else [f"No headlines found for {company_name}"]

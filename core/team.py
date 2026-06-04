@@ -78,4 +78,6 @@ def run_team(ticker: str) -> dict:
     )
     raw = pm.run(json.dumps(reports))
     cleaned = raw.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
-    return json.loads(cleaned)
+    verdict = json.loads(cleaned)
+    verdict["agent_reports"] = reports
+    return verdict
