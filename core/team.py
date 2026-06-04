@@ -55,7 +55,12 @@ SPECIALISTS = {
 def _run_one(name: str, ticker: str) -> tuple[str, str]:
     system_prompt, fetch = SPECIALISTS[name]
     agent = Agent(name=name, system_prompt=system_prompt)
-    data = fetch(ticker)
+    raw = fetch(ticker)
+    if isinstance(raw, dict):
+        clean = {k: v for k, v in raw.items() if v is not None}
+        data = clean if clean else "No public market data — this may be a private or unlisted company."
+    else:
+        data = raw
     return name, agent.run(f"Ticker: {ticker}\nData: {data}")
 
 
