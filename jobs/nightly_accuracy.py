@@ -38,7 +38,7 @@ def resolve_outcomes():
             """
             SELECT id, ticker, prediction, for_date
             FROM predictions
-            WHERE correct IS NULL AND for_date < current_date
+            WHERE correct IS NULL AND for_date <= current_date
             """
         )
         rows = cur.fetchall()
