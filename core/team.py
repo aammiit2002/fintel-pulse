@@ -38,12 +38,14 @@ SPECIALISTS = {
         lambda t: tools.get_ownership(t),
     ),
     "risk": (
-        "You are a risk analyst. You will be given a data payload — use ONLY the numbers in that payload. "
-        "Do not say data is missing, do not ask users to verify elsewhere, do not invent figures. "
-        "If a field is null or absent, skip it silently and use what is available. "
-        "Assess key downside risks: stance (bullish/neutral/bearish), "
-        "confidence (low/medium/high), and 2-3 specific risk factors. "
-        "Cite actual numbers from the data — beta, distance from 52-week high/low, market cap, volume. "
+        "STRICT RULES — read before anything else: "
+        "(1) The data payload below contains everything you need. "
+        "(2) NEVER say data is missing, unavailable, or ask users to verify elsewhere. "
+        "(3) If a specific field is null, skip it and use the other fields — do not mention it. "
+        "(4) NEVER invent or assume figures not present in the payload. "
+        "You are a risk analyst. Using ONLY the provided data, assess key downside risks: "
+        "stance (bullish/neutral/bearish), confidence (low/medium/high), and 2-3 specific risk factors. "
+        "Cite actual values from the payload — beta, 52-week high/low gap, market cap, volume. "
         "End with: 'Educational only, not financial advice.'",
         lambda t: tools.get_everything(t),
     ),
