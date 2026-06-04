@@ -101,14 +101,24 @@ with col_v:
 st.divider()
 
 # ── Search ────────────────────────────────────────────────────────────────────
+exchange = st.radio(
+    "Exchange",
+    ["NSE (India)", "US (NYSE / NASDAQ)"],
+    horizontal=True,
+)
+
+is_nse = exchange == "NSE (India)"
+placeholder = "e.g. SBIN, RELIANCE, TCS, INFY" if is_nse else "e.g. AAPL, TSLA, MSFT, NVDA"
+
 ticker_input = st.text_input(
     "Stock ticker",
-    placeholder="e.g. RELIANCE.NS, INFY.NS, TSLA",
-    help="Enter any ticker supported by Yahoo Finance.",
+    placeholder=placeholder,
+    help="Type the ticker symbol and we'll handle the rest.",
 )
 
 if st.button("Analyze", type="primary") and ticker_input.strip():
-    ticker = ticker_input.strip().upper()
+    raw = ticker_input.strip().upper()
+    ticker = (raw + ".NS") if is_nse and not raw.endswith(".NS") else raw
     with st.spinner(f"Researching {ticker}…"):
         try:
             verdict = answer(ticker, run_team)
@@ -123,7 +133,7 @@ if st.button("Analyze", type="primary") and ticker_input.strip():
     confidence = verdict.get("confidence", "—").title()
     drivers = verdict.get("drivers", [])
 
-    st.subheader(f"{ticker} — {stance}")
+    st.subheader(f"{fmt_ticker(ticker)} — {stance}")
     st.write(f"**Confidence:** {confidence}")
 
     if drivers:
