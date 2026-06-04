@@ -63,11 +63,7 @@ def resolve_outcomes():
 def recompute_accuracy():
     with conn() as c, c.cursor() as cur:
         cur.execute(
-            """
-            SELECT COUNT(*) FROM predictions
-            WHERE correct IS NOT NULL
-              AND for_date > current_date - INTERVAL '30 days'
-            """
+            "SELECT COUNT(*) FROM predictions WHERE correct IS NOT NULL"
         )
         total = cur.fetchone()[0]
         if total == 0:
@@ -78,13 +74,12 @@ def recompute_accuracy():
             INSERT INTO accuracy (scope, period, hit_rate, total, updated_at)
             SELECT
                 'overall',
-                'last_30_days',
+                'all_time',
                 ROUND(AVG(CASE WHEN correct THEN 1.0 ELSE 0.0 END) * 100, 1),
                 COUNT(*),
                 now()
             FROM predictions
             WHERE correct IS NOT NULL
-              AND for_date > current_date - INTERVAL '30 days'
             ON CONFLICT (scope, period) DO UPDATE
             SET hit_rate   = EXCLUDED.hit_rate,
                 total      = EXCLUDED.total,

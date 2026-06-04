@@ -17,7 +17,7 @@ st.caption("Educational AI research desk — not financial advice.")
 try:
     acc = db.get_accuracy()
     if acc:
-        st.metric("30-day prediction accuracy", f"{acc['hit_rate']}%", f"based on {acc['total']} predictions")
+        st.metric("Overall prediction accuracy", f"{acc['hit_rate']}%", f"based on {acc['total']} predictions")
     else:
         st.metric("30-day prediction accuracy", "—", "Populates after first full trading day")
 except Exception:

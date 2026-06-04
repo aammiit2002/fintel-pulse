@@ -57,7 +57,7 @@ def bump_view(ticker: str):
 def get_accuracy():
     with conn() as c, c.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute(
-            "SELECT hit_rate, total FROM accuracy WHERE scope = 'overall' AND period = 'last_30_days'"
+            "SELECT hit_rate, total FROM accuracy WHERE scope = 'overall' AND period = 'all_time'"
         )
         return cur.fetchone()
 
