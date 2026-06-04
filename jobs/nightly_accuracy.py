@@ -47,8 +47,10 @@ def resolve_outcomes():
         move = pct_change_on(ticker, for_date)
         if move is None:
             continue
-        correct = (move > 0 and prediction == "bullish") or (
-            move < 0 and prediction == "bearish"
+        correct = (
+            (move > 1.0  and prediction == "bullish") or
+            (move < -1.0 and prediction == "bearish") or
+            (abs(move) <= 1.0 and prediction == "neutral")
         )
         with conn() as c, c.cursor() as cur:
             cur.execute(
