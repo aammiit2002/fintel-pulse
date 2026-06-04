@@ -8,19 +8,28 @@ import yfinance as yf
 from core.db import conn
 
 
+def _fetch_hist(ticker: str, for_date):
+    return yf.Ticker(ticker).history(
+        start=str(for_date), end=str(for_date + timedelta(days=1))
+    )
+
+
 def pct_change_on(ticker: str, for_date) -> float | None:
-    """Return the percentage price change on for_date, or None if unavailable."""
-    try:
-        hist = yf.Ticker(ticker).history(start=str(for_date), end=str(for_date + timedelta(days=1)))
-        if hist.empty or len(hist) < 1:
-            return None
-        open_p = hist["Open"].iloc[0]
-        close_p = hist["Close"].iloc[0]
-        if open_p == 0:
-            return None
-        return round(((close_p - open_p) / open_p) * 100, 4)
-    except Exception:
-        return None
+    """Return the percentage price change on for_date, or None if unavailable.
+    Tries bare ticker first, then appends .NS for Indian stocks."""
+    for sym in [ticker, ticker + ".NS"] if "." not in ticker else [ticker]:
+        try:
+            hist = _fetch_hist(sym, for_date)
+            if hist.empty:
+                continue
+            open_p  = float(hist["Open"].iloc[0])
+            close_p = float(hist["Close"].iloc[0])
+            if open_p == 0:
+                continue
+            return round((close_p - open_p) / open_p * 100, 4)
+        except Exception:
+            continue
+    return None
 
 
 def resolve_outcomes():
